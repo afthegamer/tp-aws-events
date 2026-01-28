@@ -423,4 +423,6 @@ sam delete --stack-name tp-aws --region eu-west-3
 - Région : `eu-west-3`
 - Stack : `tp-aws-events`
 - Base URL : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com`
+- Hello : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/hello`
+- Events : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events`
 - Bucket S3 : `tp-aws-events-eventsbucket-tauwuivuuy4m`
