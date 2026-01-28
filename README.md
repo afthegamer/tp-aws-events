@@ -421,6 +421,6 @@ sam delete --stack-name tp-aws --region eu-west-3
 ## 18) Résultats de mon déploiement (à remplir)
 
 - Région : `eu-west-3`
-- Stack : `tp-aws`
+- Stack : `tp-aws-events`
 - Base URL : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com`
-- Bucket S3 : `<EventsBucketName>`
+- Bucket S3 : `tp-aws-events-eventsbucket-tauwuivuuy4m`
