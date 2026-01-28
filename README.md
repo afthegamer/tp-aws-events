@@ -72,7 +72,7 @@ Preuves (captures d'écrans) :
 
 ```powershell
 git clone https://github.com/afthegamer/tp-aws
-cd tp-aws
+cd tp-aws-events
 npm i
 ```
 
@@ -81,9 +81,9 @@ Notes Windows :
 - Le build SAM peut rencontrer des soucis de chemins trop longs/symlinks. Le contournement propre :
 
 ```powershell
-subst X: "C:\chemin\vers\tp-aws"
+subst X: "C:\chemin\vers\tp-aws-events"
 X:
-cd X:\tp-aws
+cd X:\tp-aws-events
 ```
 
 ---
@@ -138,7 +138,7 @@ sam build --no-cached -t .\template.yml
 
 sam deploy `
   --template-file .\.aws-sam\build\template.yml `
-  --stack-name tp-aws `
+  --stack-name tp-aws-events `
   --region eu-west-3 `
   --capabilities CAPABILITY_IAM `
   --resolve-s3 `
@@ -151,7 +151,7 @@ Après le deploy, SAM affiche les outputs. On peux aussi les relire :
 
 ```powershell
 aws cloudformation describe-stacks `
-  --stack-name tp-aws `
+  --stack-name tp-aws-events `
   --region eu-west-3 `
   --query "Stacks[0].Outputs" `
   --output table
@@ -309,7 +309,7 @@ Le handler log en JSON avec au minimum :
 Lire les logs en live :
 
 ```powershell
-sam logs -n HelloWorldFunction --stack-name tp-aws --region eu-west-3 --tail
+sam logs -n HelloWorldFunction --stack-name tp-aws-events --region eu-west-3 --tail
 ```
 
 ### 11.2 Vérifier la rétention CloudWatch
@@ -328,7 +328,7 @@ Vérifier :
 ```powershell
 aws logs describe-log-groups `
   --region eu-west-3 `
-  --log-group-name-prefix "/aws/lambda/tp-aws-HelloWorldFunction" `
+  --log-group-name-prefix "/aws/lambda/tp-aws-events-HelloWorldFunction" `
   --query "logGroups[0].retentionInDays" `
   --output text
 ```
@@ -413,7 +413,7 @@ aws s3 rm "s3://<EventsBucketName>" --recursive
 2) Supprimer la stack :
 
 ```powershell
-sam delete --stack-name tp-aws --region eu-west-3
+sam delete --stack-name tp-aws-events --region eu-west-3
 ```
 
 ---
@@ -425,4 +425,4 @@ sam delete --stack-name tp-aws --region eu-west-3
 - Base URL : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com`
 - Hello : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/hello`
 - Events : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events`
-- Bucket S3 : `tp-aws-events-eventsbucket-tauwuivuuy4m`
+- Bucket S3 : `tp-aws-eventsbucket-tauwuivuuy4m`
