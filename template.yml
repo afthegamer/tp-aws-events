@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+        tp-aws-events
+
+Globals:
+        Function:
+                Timeout: 3
+                Environment:
+                        Variables:
+                                EVENTS_TABLE: !Ref EventsTable
+                                EVENTS_BUCKET: !Ref EventsBucket
+
+Resources:
+        HttpApi:
+                Type: AWS::Serverless::HttpApi
+                Properties:
+                        StageName: $default
+                        CorsConfiguration:
+                                AllowOrigins:
+                                        - "*"
+                                AllowHeaders:
+                                        - content-type
+                                        - authorization
+                                AllowMethods:
+                                        - GET
+                                        - POST
+                                        - PUT
+                                        - DELETE
+                                        - OPTIONS
+
+        EventsTable:
+                Type: AWS::DynamoDB::Table
+                Properties:
+                        TableName: !Sub "${AWS::StackName}-events"
+                        BillingMode: PROVISIONED
+                        ProvisionedThroughput:
+                                ReadCapacityUnits: 1
+                                WriteCapacityUnits: 1
+                        AttributeDefinitions:
+                                -       AttributeName: pk
+                                        AttributeType: S
+                        KeySchema:
+                                -       AttributeName: pk
+                                        KeyType: HASH
+                        SSESpecification:
+                                SSEEnabled: true
+
+        EventsBucket:
+                Type: AWS::S3::Bucket
+                Properties:
+                        BucketEncryption:
+                                ServerSideEncryptionConfiguration:
+                                        -       ServerSideEncryptionByDefault:
+                                                        SSEAlgorithm: AES256
+                        PublicAccessBlockConfiguration:
+                                BlockPublicAcls: true
+                                IgnorePublicAcls: true
+                                BlockPublicPolicy: true
+                                RestrictPublicBuckets: true
+                        CorsConfiguration:
+                                CorsRules:
+                                        -       AllowedOrigins:
+                                                        - "*"
+                                                AllowedMethods:
+                                                        - GET
+                                                        - PUT
+                                                        - HEAD
+                                                AllowedHeaders:
+                                                        - "*"
+                                                ExposedHeaders:
+                                                        - ETag
+                                                MaxAge: 3000
+
+        HelloWorldFunction:
+                Type: AWS::Serverless::Function
+                Properties:
+                        CodeUri: hello-world/
+                        Handler: app.lambdaHandler
+                        Runtime: nodejs22.x
+                        Architectures:
+                                - x86_64
+                        Policies:
+                                -       DynamoDBCrudPolicy:
+                                                TableName: !Ref EventsTable
+                                -       S3CrudPolicy:
+                                                BucketName: !Ref EventsBucket
+                        Events:
+                                HelloWorld:
+                                        Type: HttpApi
+                                        Properties:
+                                                ApiId: !Ref HttpApi
+                                                Path: /hello
+                                                Method: GET
+
+                                EventsList:
+                                        Type: HttpApi
+                                        Properties:
+                                                ApiId: !Ref HttpApi
+                                                Path: /events
+                                                Method: GET
+
+                                EventsCreate:
+                                        Type: HttpApi
+                                        Properties:
+                                                ApiId: !Ref HttpApi
+                                                Path: /events
+                                                Method: POST
+
+                                EventGetById:
+                                        Type: HttpApi
+                                        Properties:
+                                                ApiId: !Ref HttpApi
+                                                Path: /events/{id}
+                                                Method: GET
+
+                                EventUpdate:
+                                        Type: HttpApi
+                                        Properties:
+                                                ApiId: !Ref HttpApi
+                                                Path: /events/{id}
+                                                Method: PUT
+
+                                EventDelete:
+                                        Type: HttpApi
+                                        Properties:
+                                                ApiId: !Ref HttpApi
+                                                Path: /events/{id}
+                                                Method: DELETE
+
+                                EventUploadUrl:
+                                        Type: HttpApi
+                                        Properties:
+                                                ApiId: !Ref HttpApi
+                                                Path: /events/{id}/upload-url
+                                                Method: POST
+
+                Metadata:
+                        BuildMethod: esbuild
+                        BuildProperties:
+                                Minify: true
+                                Target: "es2020"
+                                Sourcemap: true
+                                EntryPoints:
+                                        - app.ts
+
+        HelloWorldFunctionLogGroup:
+                Type: AWS::Logs::LogGroup
+                Properties:
+                        LogGroupName: !Sub "/aws/lambda/${HelloWorldFunction}"
+                        RetentionInDays: 7
+
+Outputs:
+        HelloWorldApi:
+                Description: "HTTP API endpoint URL for Hello World function"
+                Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/hello"
+        EventsApi:
+                Description: "HTTP API endpoint URL for Events (/events)"
+                Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/events"
+        EventsBucketName:
+                Description: "S3 bucket for event images"
+                Value: !Ref EventsBucket
+        HelloWorldFunction:
+                Description: "Hello World Lambda Function ARN"
+                Value: !GetAtt HelloWorldFunction.Arn
+        HelloWorldFunctionIamRole:
+                Description: "Implicit IAM Role created for Hello World function"
+                Value: !GetAtt HelloWorldFunctionRole.Arn

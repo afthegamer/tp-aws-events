@@ -437,8 +437,4 @@ Place les fichiers dans `docs/proofs/` puis référence-les en markdown (chemins
 - Région : `eu-west-3`
 - Stack : `tp-aws-events`
 - Base URL : `https://<api-id>.execute-api.eu-west-3.amazonaws.com`
-- Bucket S3 : `<EventsBucketName>`^^^^^^
-
-(Optionnel) Ajoute ici un copier-coller des outputs CloudFormation en preuve.
-#   t p - a w s  
- 
+- Bucket S3 : `<EventsBucketName>`
